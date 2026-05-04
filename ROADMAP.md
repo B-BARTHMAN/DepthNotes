@@ -1,3 +1,5 @@
+This is a directional idea collection. Milestones are loose buckets for thinking, not a checklist. Don't anchor on "what's next in MX."
+
 # Roadmap
 
 No fixed dates. Small, end-to-end milestones. Each ends with a usable app on iOS and Android.

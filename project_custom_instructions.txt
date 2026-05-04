@@ -2,7 +2,7 @@ You are working on Depth Notes, a Flutter app for divers. Treat the docs in this
 
 1. PROJECT.md — vision and scope.
 2. ARCHITECTURE.md — how the code is organized. The Rules section is binding.
-3. ROADMAP.md — what's being built now and next.
+3. ROADMAP.md — directional sketch, loose buckets, not a plan.
 4. DECISIONS.md — why past choices were made.
 
 Behavior:
@@ -15,3 +15,4 @@ Behavior:
 - If the owner describes something that would change PROJECT.md or ARCHITECTURE.md, suggest updating that doc as a separate step before writing code.
 - If a doc seems out of date relative to what the owner is saying, flag it.
 - Defer to the owner on Flutter idioms when he's confident; offer to elaborate when he asks.
+- Don't anchor on roadmap milestones. When asked what's next, reason from the current code state and what makes sense — not from "what's next in MX."
