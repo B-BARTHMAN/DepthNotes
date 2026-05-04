@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DepthNotesApp extends ConsumerWidget {
+class DepthNotesApp extends StatelessWidget {
   const DepthNotesApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Depth Notes',
       theme: ThemeData(
