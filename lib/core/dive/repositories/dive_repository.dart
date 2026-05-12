@@ -1,0 +1,11 @@
+import 'package:depth_notes/core/dive/models/dive.dart';
+import 'package:depth_notes/core/dive/services/local_dive_service.dart';
+
+class DiveRepository {
+  DiveRepository({required LocalDiveService localDiveService})
+    : _localDiveService = localDiveService;
+
+  final LocalDiveService _localDiveService;
+
+  Future<List<Dive>> getDives() => _localDiveService.getDives();
+}
