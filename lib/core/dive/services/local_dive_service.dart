@@ -1,47 +1,61 @@
+import 'package:depth_notes/core/database/app_database.dart';
 import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:depth_notes/core/dive/models/dive_time.dart';
+import 'package:drift/drift.dart';
 
 class LocalDiveService {
-  final List<Dive> _dives = [
-      Dive(
-        id: '1',
-        date: DateTime(2026, 5, 10),
-        site: 'Blue Hole',
-        depth: 28,
-        time: const DiveTime.rough(
-          timeOfDay: DiveTimeOfDay.afternoon,
-          duration: 63
-        ),
-        updatedAt: DateTime(2026, 5, 10),
-        version: 1,
-      ),
-      Dive(
-        id: '2',
-        date: DateTime(2026, 4, 22),
-        site: 'Shark Point',
-        depth: 18,
-        time: const DiveTime.rough(
-          timeOfDay: DiveTimeOfDay.morning,
-          duration: 55
-        ),
-        updatedAt: DateTime(2026, 4, 22),
-        version: 1,
-      ),
-      Dive(
-        id: '3',
-        date: DateTime(2026, 3, 5),
-        site: 'Manta Reef',
-        depth: 22,
-        time: DiveTime.precise(
-          timeIn: DateTime(2026, 9, 7, 16, 30),
-          timeOut: DateTime(2026, 9, 7, 17, 17),
-        ),
-        updatedAt: DateTime(2026, 3, 5),
-        version: 1,
-      ),
-    ];
+  LocalDiveService({required AppDatabase database}) : _database = database;
 
-  Future<List<Dive>> getDives() async => List.unmodifiable(_dives);
+  final AppDatabase _database;
 
-  Future<void> addDive(Dive dive) async => _dives.insert(0, dive);
+  Stream<List<Dive>> watchDives() {
+    final query = _database.select(_database.dives)
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.map(_toDomain).watch();
+  }
+
+  Future<void> addDive(Dive dive) async =>
+      _database.into(_database.dives).insert(_toCompanion(dive));
+
+  Dive _toDomain(DiveRow r) => Dive(
+    id: r.id,
+    date: r.date,
+    site: r.site,
+    depth: r.depth,
+    notes: r.notes,
+    updatedAt: r.updatedAt,
+    time: switch (r.timeKind) {
+      'rough' => DiveTime.rough(
+        timeOfDay: DiveTimeOfDay.values.byName(r.timeOfDay!),
+        duration: r.duration!,
+      ),
+      'precise' => DiveTime.precise(timeIn: r.timeIn!, timeOut: r.timeOut!),
+      _ => throw StateError('unknown timeKind: ${r.timeKind}'),
+    },
+  );
+
+  DivesCompanion _toCompanion(Dive d) => switch (d.time) {
+    RoughDiveTime(:final timeOfDay, :final duration) => DivesCompanion.insert(
+      id: d.id,
+      date: d.date,
+      site: d.site,
+      depth: d.depth,
+      notes: Value(d.notes),
+      updatedAt: d.updatedAt,
+      timeKind: 'rough',
+      timeOfDay: Value(timeOfDay.name),
+      duration: Value(duration),
+    ),
+    PreciseDiveTime(:final timeIn, :final timeOut) => DivesCompanion.insert(
+      id: d.id,
+      date: d.date,
+      site: d.site,
+      depth: d.depth,
+      notes: Value(d.notes),
+      updatedAt: d.updatedAt,
+      timeKind: 'precise',
+      timeIn: Value(timeIn),
+      timeOut: Value(timeOut),
+    ),
+  };
 }

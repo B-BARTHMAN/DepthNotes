@@ -69,7 +69,7 @@ Cubits expose intent-named methods (`loadDives()`, `addDive(...)`). No setters, 
 
 Freezed for models. JSON via `json_serializable`. One model per entity, used as both wire format and domain object. Split into a separate DTO only when Supabase ↔ UI shape actually diverges.
 
-Every persisted entity has `String id` (UUID v4), `DateTime updatedAt`, and `int version`.
+Every persisted entity has `String id` (UUID v7) and `DateTime updatedAt`.
 
 ## Persistence
 

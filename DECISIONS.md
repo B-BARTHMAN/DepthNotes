@@ -123,3 +123,19 @@ Format: date, decision, why, alternatives.
 **Why:** The editor will grow significantly (equipment, gas, buddy, conditions). Keeping it separate prevents the logbook feature from bloating.
 
 **Alternatives:** Subfolder inside logbook (simpler but harder to navigate as editor grows).
+
+## 2026-05-17 — Drop per-row `version` column
+
+**Decision:** Entities have `id` and `updatedAt` only. The `version` field
+from R15 is removed.
+
+**Why:** R19 resolves conflicts by last-write-wins on server `updatedAt`,
+so a per-row revision counter does no work today. `updatedAt` keeps its
+job as the conflict resolver — that's why it stays. Adds back cleanly
+later if the sync strategy ever needs optimistic concurrency or a
+three-way merge base. Supersedes the `version` portion of the
+2026-05-04 "UUIDs and version columns from day one" entry; UUIDs and
+`updatedAt` from day one still stand.
+
+**Alternatives:** Keep it as future-proofing — costs a column on every
+model and a number to remember to increment.

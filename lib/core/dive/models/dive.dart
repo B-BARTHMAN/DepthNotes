@@ -13,7 +13,6 @@ abstract class Dive with _$Dive {
     required double depth,
     required DiveTime time,
     required DateTime updatedAt,
-    required int version,
     String? notes,
   }) = _Dive;
 }

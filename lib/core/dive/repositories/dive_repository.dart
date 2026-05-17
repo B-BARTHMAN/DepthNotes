@@ -7,7 +7,7 @@ class DiveRepository {
 
   final LocalDiveService _localDiveService;
 
-  Future<List<Dive>> getDives() => _localDiveService.getDives();
+  Stream<List<Dive>> watchDives() => _localDiveService.watchDives();
 
   Future<void> addDive(Dive dive) => _localDiveService.addDive(dive);
 }

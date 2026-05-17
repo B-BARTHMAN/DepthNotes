@@ -11,6 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Database
+  drift: ^2.33.0
+  drift_flutter: ^0.3.0
+  path_provider: ^2.1.5
   
   # State Management
   flutter_bloc: ^9.1.1
@@ -35,6 +40,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  
+  # Database
+  drift_dev: ^2.33.0
   
   # Code generation
   build_runner: ^2.15.0

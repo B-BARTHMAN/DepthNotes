@@ -30,7 +30,6 @@ class DiveEditorCubit extends Cubit<DiveEditorState> {
         depth: depth, 
         time: time, 
         updatedAt: now, 
-        version: 1,
         notes: notes
       );
       await _diveRepository.addDive(dive);

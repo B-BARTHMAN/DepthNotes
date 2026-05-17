@@ -13,43 +13,41 @@ import 'package:go_router/go_router.dart';
 final appRouter = GoRouter(
   routes: [
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) => 
-        ShellScaffold(navigationShell: navigationShell),
+      builder: (context, state, navigationShell) =>
+          ShellScaffold(navigationShell: navigationShell),
       branches: [
-
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.logbook,
-              builder:(context, state) => BlocProvider(
+              builder: (context, state) => BlocProvider(
                 create: (context) => DiveLogCubit(
                   diveRepository: context.read<DiveRepository>(),
-                )..loadDives(),
+                ),
                 child: const LogbookScreen(),
               ),
-            )
-          ]
+            ),
+          ],
         ),
 
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.explore,
-              builder:(context, state) => const ExploreScreen(),
-            )
-          ]
+              builder: (context, state) => const ExploreScreen(),
+            ),
+          ],
         ),
 
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.profile,
-              builder:(context, state) => const ProfileScreen(),
-            )
-          ]
+              builder: (context, state) => const ProfileScreen(),
+            ),
+          ],
         ),
-
-      ]
+      ],
     ),
     GoRoute(
       path: AppRoutes.diveEditor,
@@ -60,5 +58,5 @@ final appRouter = GoRouter(
         child: const DiveEditorScreen(),
       ),
     ),
-  ]
+  ],
 );
