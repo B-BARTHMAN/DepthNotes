@@ -4,15 +4,26 @@ class PreciseTimeFields extends StatelessWidget {
   const PreciseTimeFields({
     required this.timeIn,
     required this.timeOut,
-    required this.onPickTimeIn,
-    required this.onPickTimeOut,
+    required this.onTimeInChanged,
+    required this.onTimeOutChanged,
     super.key,
   });
 
   final TimeOfDay? timeIn;
   final TimeOfDay? timeOut;
-  final VoidCallback onPickTimeIn;
-  final VoidCallback onPickTimeOut;
+  final ValueChanged<TimeOfDay> onTimeInChanged;
+  final ValueChanged<TimeOfDay> onTimeOutChanged;
+
+  Future<void> _pick(
+    BuildContext context, {
+    required ValueChanged<TimeOfDay> onChanged,
+  }) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) onChanged(picked);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +33,13 @@ class PreciseTimeFields extends StatelessWidget {
           title: const Text('Time in'),
           subtitle: Text(timeIn?.format(context) ?? 'Tap to set'),
           trailing: const Icon(Icons.access_time),
-          onTap: onPickTimeIn,
+          onTap: () => _pick(context, onChanged: onTimeInChanged),
         ),
         ListTile(
           title: const Text('Time out'),
           subtitle: Text(timeOut?.format(context) ?? 'Tap to set'),
           trailing: const Icon(Icons.access_time),
-          onTap: onPickTimeOut,
+          onTap: () => _pick(context, onChanged: onTimeOutChanged),
         ),
       ],
     );

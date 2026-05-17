@@ -3,12 +3,22 @@ import 'package:flutter/material.dart';
 class DatePickerTile extends StatelessWidget {
   const DatePickerTile({
     required this.date,
-    required this.onPick,
+    required this.onDateChanged,
     super.key,
   });
 
   final DateTime date;
-  final VoidCallback onPick;
+  final ValueChanged<DateTime> onDateChanged;
+
+  Future<void> _pick(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: date,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) onDateChanged(picked);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +26,7 @@ class DatePickerTile extends StatelessWidget {
       title: const Text('Date'),
       subtitle: Text('${date.day}/${date.month}/${date.year}'),
       trailing: const Icon(Icons.calendar_today),
-      onTap: onPick,
+      onTap: () => _pick(context),
     );
   }
 }

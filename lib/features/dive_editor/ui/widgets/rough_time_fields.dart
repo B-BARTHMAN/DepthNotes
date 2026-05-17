@@ -1,4 +1,3 @@
-
 import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +17,6 @@ class RoughTimeFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         DropdownButtonFormField<DiveTimeOfDay>(
           initialValue: timeOfDay,
           decoration: const InputDecoration(labelText: 'Time of day'),
@@ -39,11 +37,15 @@ class RoughTimeFields extends StatelessWidget {
           controller: durationController,
           decoration: const InputDecoration(
             labelText: 'Duration',
-            suffixText: 'min'
+            suffixText: 'min',
           ),
           keyboardType: TextInputType.number,
+          validator: (value) {
+            final mins = int.tryParse(value ?? '');
+            if (mins == null || mins <= 0) return 'Enter a valid duration';
+            return null;
+          },
         ),
-
       ],
     );
   }

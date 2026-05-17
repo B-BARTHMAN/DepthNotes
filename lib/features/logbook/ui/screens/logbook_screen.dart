@@ -16,7 +16,12 @@ class LogbookScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Logbook')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(AppRoutes.diveEditor),
+        onPressed: () async {
+          await context.push(AppRoutes.diveEditor);
+          if (context.mounted) {
+            await context.read<DiveLogCubit>().loadDives();
+          }
+        },
         child: const Icon(Icons.add),
       ),
       body: BlocBuilder<DiveLogCubit, DiveLogState>(
