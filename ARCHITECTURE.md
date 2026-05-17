@@ -40,19 +40,17 @@ lib/
     theme/
     routing/
   core/
+    dive/
+      models/
+      services/
+      repositories/
     errors/
     extensions/
     utils/
     widgets/
   features/
     <feature>/
-      data/
-        models/
-        services/
-        repositories/
       cubit/
-        <feature>_cubit.dart
-        <feature>_state.dart
       ui/
         screens/
         widgets/

@@ -93,3 +93,33 @@ Format: date, decision, why, alternatives.
 **Why:** Dependencies are explicit. One pattern.
 
 **Alternatives:** `get_it` (ergonomic for deep trees, hides dependencies).
+
+---
+
+## 2026-05-17 — DiveTime as a Freezed sealed union
+
+**Decision:** Time data on a dive is a sealed union: `DiveTime.rough` (time of day enum + duration) and `DiveTime.precise` (timeIn + timeOut, duration derived).
+
+**Why:** Prevents invalid states — no timeIn without timeOut, no conflicting duration, no morning enum on a precise entry. Clean upgrade path when dive computer import arrives (rough → precise).
+
+**Alternatives:** Optional nullable fields on Dive (allows inconsistent data); single flat model with validation (runtime errors instead of compile-time safety).
+
+---
+
+## 2026-05-17 — Dive data layer lives in core/
+
+**Decision:** `Dive` model, `DiveRepository`, and `LocalDiveService` live in `core/dive/`, not inside a feature.
+
+**Why:** Dive is the central entity — logbook, editor, statistics, map, and sightings all depend on it. Putting it in one feature creates awkward cross-feature imports.
+
+**Alternatives:** Keep in `features/logbook/data/` (simpler at first, forces a move later when a second feature needs it).
+
+---
+
+## 2026-05-17 — Dive editor is a separate feature from logbook
+
+**Decision:** `features/dive_editor/` is separate from `features/logbook/`. Both share `core/dive/`.
+
+**Why:** The editor will grow significantly (equipment, gas, buddy, conditions). Keeping it separate prevents the logbook feature from bloating.
+
+**Alternatives:** Subfolder inside logbook (simpler but harder to navigate as editor grows).
