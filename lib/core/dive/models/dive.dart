@@ -1,4 +1,5 @@
 
+import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'dive.freezed.dart';
@@ -10,8 +11,9 @@ abstract class Dive with _$Dive {
     required DateTime date,
     required String site,
     required double depth,
-    required int duration,
+    required DiveTime time,
     required DateTime updatedAt,
     required int version,
+    String? notes,
   }) = _Dive;
 }
