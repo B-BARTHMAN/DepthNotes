@@ -1,3 +1,4 @@
+import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:depth_notes/features/dive_editor/cubit/dive_editor_cubit.dart';
 import 'package:depth_notes/features/dive_editor/ui/widgets/date_picker_tile.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DiveEditorForm extends StatefulWidget {
-  const DiveEditorForm({super.key});
+  const DiveEditorForm({required this.initialDive, super.key});
+
+  final Dive? initialDive;
 
   @override
   State<DiveEditorForm> createState() => _DiveEditorFormState();
@@ -17,16 +20,46 @@ class DiveEditorForm extends StatefulWidget {
 class _DiveEditorFormState extends State<DiveEditorForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final _siteController = TextEditingController();
-  final _depthController = TextEditingController();
-  final _durationController = TextEditingController();
-  final _notesController = TextEditingController();
+  late final TextEditingController _siteController;
+  late final TextEditingController _depthController;
+  late final TextEditingController _durationController;
+  late final TextEditingController _notesController;
 
   DateTime _date = DateTime.now();
   bool _isRoughTime = true;
   DiveTimeOfDay _timeOfDay = DiveTimeOfDay.morning;
   TimeOfDay? _timeIn;
   TimeOfDay? _timeOut;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialDive;
+
+    _siteController = TextEditingController(text: initial?.site ?? '');
+    _depthController = TextEditingController(
+      text: initial?.depth.toString() ?? '',
+    );
+    _durationController = TextEditingController();
+    _notesController = TextEditingController(text: initial?.notes ?? '');
+
+    if (initial == null) return;
+    _date = initial.date;
+
+    switch (initial.time) {
+      case RoughDiveTime(
+        :final timeOfDay,
+        :final duration,
+      ):
+        _isRoughTime = true;
+        _timeOfDay = timeOfDay;
+        _durationController.text = duration.toString();
+      case PreciseDiveTime(:final timeIn, :final timeOut):
+        _isRoughTime = false;
+        _timeIn = TimeOfDay.fromDateTime(timeIn);
+        _timeOut = TimeOfDay.fromDateTime(timeOut);
+    }
+  }
 
   @override
   void dispose() {

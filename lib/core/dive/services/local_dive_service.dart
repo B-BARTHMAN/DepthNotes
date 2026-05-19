@@ -17,6 +17,13 @@ class LocalDiveService {
   Future<void> addDive(Dive dive) async =>
       _database.into(_database.dives).insert(_toCompanion(dive));
 
+  Future<void> updateDive(Dive dive) => (_database.update(
+    _database.dives,
+  )..where((t) => t.id.equals(dive.id))).write(_toCompanion(dive));
+
+  Future<void> deleteDive(String id) =>
+      (_database.delete(_database.dives)..where((t) => t.id.equals(id))).go();
+
   Dive _toDomain(DiveRow r) => Dive(
     id: r.id,
     date: r.date,
@@ -45,6 +52,8 @@ class LocalDiveService {
       timeKind: 'rough',
       timeOfDay: Value(timeOfDay.name),
       duration: Value(duration),
+      timeIn: const Value(null),
+      timeOut: const Value(null),
     ),
     PreciseDiveTime(:final timeIn, :final timeOut) => DivesCompanion.insert(
       id: d.id,
@@ -54,6 +63,8 @@ class LocalDiveService {
       notes: Value(d.notes),
       updatedAt: d.updatedAt,
       timeKind: 'precise',
+      timeOfDay: const Value(null),
+      duration: const Value(null),
       timeIn: Value(timeIn),
       timeOut: Value(timeOut),
     ),

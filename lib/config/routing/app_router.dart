@@ -1,6 +1,8 @@
 import 'package:depth_notes/config/routing/app_routes.dart';
 import 'package:depth_notes/config/routing/shell_scaffold.dart';
+import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:depth_notes/core/dive/repositories/dive_repository.dart';
+import 'package:depth_notes/features/dive_detail/ui/screens/dive_detail_screen.dart';
 import 'package:depth_notes/features/dive_editor/cubit/dive_editor_cubit.dart';
 import 'package:depth_notes/features/dive_editor/ui/screens/dive_editor_screen.dart';
 import 'package:depth_notes/features/explore/ui/screens/explore_screen.dart';
@@ -51,12 +53,20 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.diveEditor,
-      builder: (context, state) => BlocProvider(
-        create: (context) => DiveEditorCubit(
-          diveRepository: context.read<DiveRepository>(),
-        ),
-        child: const DiveEditorScreen(),
-      ),
+      builder: (context, state) {
+        final dive = state.extra as Dive?;
+        return BlocProvider(
+          create: (context) => DiveEditorCubit(
+            diveRepository: context.read<DiveRepository>(),
+            initialDive: dive,
+          ),
+          child: DiveEditorScreen(initialDive: dive),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.diveDetail,
+      builder: (context, state) => DiveDetailScreen(dive: state.extra! as Dive),
     ),
   ],
 );

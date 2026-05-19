@@ -10,4 +10,6 @@ class DiveRepository {
   Stream<List<Dive>> watchDives() => _localDiveService.watchDives();
 
   Future<void> addDive(Dive dive) => _localDiveService.addDive(dive);
+  Future<void> updateDive(Dive dive) => _localDiveService.updateDive(dive);
+  Future<void> deleteDive(String id) => _localDiveService.deleteDive(id);
 }
