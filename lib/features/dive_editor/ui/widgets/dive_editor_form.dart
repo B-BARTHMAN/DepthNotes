@@ -8,6 +8,10 @@ import 'package:depth_notes/features/dive_editor/ui/widgets/rough_time_fields.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// The dive editor form.
+///
+/// Holds local form state (controllers + the rough/precise toggle) and
+/// hands the assembled [DiveTime] to [DiveEditorCubit.saveDive] on submit.
 class DiveEditorForm extends StatefulWidget {
   const DiveEditorForm({required this.initialDive, super.key});
 
@@ -44,13 +48,11 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
     _notesController = TextEditingController(text: initial?.notes ?? '');
 
     if (initial == null) return;
-    _date = initial.date;
 
+    // Editing an existing dive — seed the form from it.
+    _date = initial.date;
     switch (initial.time) {
-      case RoughDiveTime(
-        :final timeOfDay,
-        :final duration,
-      ):
+      case RoughDiveTime(:final timeOfDay, :final duration):
         _isRoughTime = true;
         _timeOfDay = timeOfDay;
         _durationController.text = duration.toString();
@@ -73,6 +75,7 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Precise mode needs both pickers set; validators can't see them.
     if (!_isRoughTime && (_timeIn == null || _timeOut == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Set both time in and time out')),
@@ -80,6 +83,8 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
       return;
     }
 
+    // Recombine `_date` with each TimeOfDay into a full DateTime.
+    // Crossing-midnight dives aren't supported yet — both stamps share _date.
     final time = _isRoughTime
         ? DiveTime.rough(
             timeOfDay: _timeOfDay,
@@ -123,6 +128,7 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
             onDateChanged: (d) => setState(() => _date = d),
           ),
           const SizedBox(height: 16),
+
           SegmentedButton<bool>(
             segments: const [
               ButtonSegment(value: true, label: Text('Rough')),
@@ -132,6 +138,7 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
             onSelectionChanged: (s) => setState(() => _isRoughTime = s.first),
           ),
           const SizedBox(height: 16),
+
           if (_isRoughTime)
             RoughTimeFields(
               timeOfDay: _timeOfDay,
@@ -146,12 +153,14 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
               onTimeOutChanged: (t) => setState(() => _timeOut = t),
             ),
           const SizedBox(height: 16),
+
           DiveDetailsFields(
             siteController: _siteController,
             depthController: _depthController,
             notesController: _notesController,
           ),
           const SizedBox(height: 24),
+
           FilledButton(
             onPressed: _save,
             child: const Text('Save'),

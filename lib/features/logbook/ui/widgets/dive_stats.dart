@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// Header strip shown above the dive list with aggregate stats.
 class DiveStats extends StatelessWidget {
   const DiveStats({
     required this.totalDives,
-    required this.totalDuration, 
+    required this.totalDuration,
     super.key,
   });
 
@@ -18,7 +19,7 @@ class DiveStats extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text('$totalDives dives'),
-          Text('$totalDuration min underwater')
+          Text('$totalDuration min underwater'),
         ],
       ),
     );

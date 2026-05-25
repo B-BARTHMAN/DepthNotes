@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+/// Logbook tab. Header stats + the dive list, with a FAB to log a new one.
 class LogbookScreen extends StatelessWidget {
   const LogbookScreen({super.key});
 
@@ -34,9 +35,7 @@ class LogbookScreen extends StatelessWidget {
                   totalDives: state.totalDives,
                   totalDuration: state.totalDuration,
                 ),
-                Expanded(
-                  child: DiveList(dives: state.dives),
-                ),
+                Expanded(child: DiveList(dives: state.dives)),
               ],
             ),
           };

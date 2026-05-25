@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Bottom-nav scaffold for the three top-level branches (R26).
 class ShellScaffold extends StatelessWidget {
   const ShellScaffold({required this.navigationShell, super.key});
 
@@ -12,9 +13,11 @@ class ShellScaffold extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
+        // Tapping the current tab resets it to its root; tapping a
+        // different tab keeps that branch's existing stack.
         onDestinationSelected: (index) => navigationShell.goBranch(
           index,
-          initialLocation: index == navigationShell.currentIndex
+          initialLocation: index == navigationShell.currentIndex,
         ),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.book), label: 'Logbook'),

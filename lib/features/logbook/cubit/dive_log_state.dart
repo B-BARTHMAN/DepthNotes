@@ -5,6 +5,8 @@ part 'dive_log_state.freezed.dart';
 
 enum DiveLogStatus { initial, loading, success, failure }
 
+/// State for the logbook screen. Driven by the dive stream from the
+/// repository — `loading` is currently unused (see cubit).
 @freezed
 abstract class DiveLogState with _$DiveLogState {
   const factory DiveLogState({

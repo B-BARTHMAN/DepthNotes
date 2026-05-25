@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Site, depth, and notes fields. Depth is metric.
 class DiveDetailsFields extends StatelessWidget {
   const DiveDetailsFields({
     required this.siteController,
@@ -23,7 +24,9 @@ class DiveDetailsFields extends StatelessWidget {
           validator: (value) =>
               value == null || value.isEmpty ? 'Enter a dive site' : null,
         ),
+
         const SizedBox(height: 16),
+
         TextFormField(
           controller: depthController,
           decoration: const InputDecoration(
@@ -37,7 +40,9 @@ class DiveDetailsFields extends StatelessWidget {
             return null;
           },
         ),
+
         const SizedBox(height: 16),
+
         TextFormField(
           controller: notesController,
           decoration: const InputDecoration(labelText: 'Notes'),

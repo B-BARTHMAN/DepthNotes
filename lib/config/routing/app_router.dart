@@ -12,12 +12,22 @@ import 'package:depth_notes/features/profile/ui/screens/profile_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+/// App routes.
+///
+/// Shape:
+/// - A bottom-nav shell with three branches (logbook / explore / profile).
+/// - Top-level routes for the editor and detail screens, pushed above the
+///   shell so the nav bar disappears while logging or viewing.
+///
+/// Feature-scoped cubits are provided here at the route builder so they
+/// live exactly as long as the screen does.
 final appRouter = GoRouter(
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           ShellScaffold(navigationShell: navigationShell),
       branches: [
+        // Logbook tab
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -32,6 +42,7 @@ final appRouter = GoRouter(
           ],
         ),
 
+        // Explore tab
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -41,6 +52,7 @@ final appRouter = GoRouter(
           ],
         ),
 
+        // Profile tab
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -51,6 +63,9 @@ final appRouter = GoRouter(
         ),
       ],
     ),
+
+    // Dive editor — pushed above the shell.
+    // The Dive (when editing) is passed via `state.extra`.
     GoRoute(
       path: AppRoutes.diveEditor,
       builder: (context, state) {
@@ -64,6 +79,10 @@ final appRouter = GoRouter(
         );
       },
     ),
+
+    // Dive detail.
+    // TODO: deep-link crash — `state.extra` is null when arriving by URL.
+    // Load by `state.pathParameters['id']` when sharing lands.
     GoRoute(
       path: AppRoutes.diveDetail,
       builder: (context, state) => DiveDetailScreen(dive: state.extra! as Dive),

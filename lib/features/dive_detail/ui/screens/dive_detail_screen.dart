@@ -5,8 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+/// Read-only detail view for a single dive.
+///
+/// Receives the [Dive] via `state.extra`, so deep-linking by URL is not
+/// supported yet. The body is a placeholder — the real layout (stats,
+/// photos, sightings) lands as those features ship.
 class DiveDetailScreen extends StatelessWidget {
   const DiveDetailScreen({required this.dive, super.key});
+
   final Dive dive;
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -33,6 +39,7 @@ class DiveDetailScreen extends StatelessWidget {
 
     await context.read<DiveRepository>().deleteDive(dive.id);
     if (!context.mounted) return;
+
     context.pop();
   }
 
@@ -52,7 +59,7 @@ class DiveDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Placeholder(),
+      body: const Placeholder(), // TODO: real layout
     );
   }
 }

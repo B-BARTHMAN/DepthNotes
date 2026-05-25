@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Tappable tile that opens a date picker.
 class DatePickerTile extends StatelessWidget {
   const DatePickerTile({
     required this.date,

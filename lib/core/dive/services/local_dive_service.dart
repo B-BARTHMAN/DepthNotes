@@ -3,16 +3,24 @@ import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:drift/drift.dart';
 
+/// Drift-backed dive storage. Bridges domain models ↔ rows.
+///
+/// [DiveTime] is a sealed union but Drift is relational: rows carry a
+/// `timeKind` discriminator plus columns for each branch.
 class LocalDiveService {
   LocalDiveService({required AppDatabase database}) : _database = database;
 
   final AppDatabase _database;
+
+  // Reads
 
   Stream<List<Dive>> watchDives() {
     final query = _database.select(_database.dives)
       ..orderBy([(t) => OrderingTerm.desc(t.date)]);
     return query.map(_toDomain).watch();
   }
+
+  // Writes
 
   Future<void> addDive(Dive dive) async =>
       _database.into(_database.dives).insert(_toCompanion(dive));
@@ -24,6 +32,9 @@ class LocalDiveService {
   Future<void> deleteDive(String id) =>
       (_database.delete(_database.dives)..where((t) => t.id.equals(id))).go();
 
+  // Mappers
+
+  /// Row -> domain. Reads `timeKind` and reconstructs the union branch.
   Dive _toDomain(DiveRow r) => Dive(
     id: r.id,
     date: r.date,
@@ -41,6 +52,7 @@ class LocalDiveService {
     },
   );
 
+  /// Domain -> row. Writes the active branch's columns; nulls the other.
   DivesCompanion _toCompanion(Dive d) => switch (d.time) {
     RoughDiveTime(:final timeOfDay, :final duration) => DivesCompanion.insert(
       id: d.id,

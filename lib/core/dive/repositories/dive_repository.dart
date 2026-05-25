@@ -1,6 +1,9 @@
 import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:depth_notes/core/dive/services/local_dive_service.dart';
 
+/// Orchestrates dive I/O.
+///
+/// Local-only today. Gains a remote service and a pending-mutation queue
 class DiveRepository {
   DiveRepository({required LocalDiveService localDiveService})
     : _localDiveService = localDiveService;

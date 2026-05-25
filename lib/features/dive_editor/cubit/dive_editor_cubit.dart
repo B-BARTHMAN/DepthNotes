@@ -5,6 +5,10 @@ import 'package:depth_notes/features/dive_editor/cubit/dive_editor_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
+/// Editor cubit. Builds a Dive from form fields and persists it.
+///
+/// Handles both create and edit: when `_initialDive` is set the id is
+/// preserved so the write becomes an update.
 class DiveEditorCubit extends Cubit<DiveEditorState> {
   DiveEditorCubit({
     required DiveRepository diveRepository,
@@ -24,6 +28,7 @@ class DiveEditorCubit extends Cubit<DiveEditorState> {
     String? notes,
   }) async {
     emit(state.copyWith(status: DiveEditorStatus.saving));
+
     try {
       final now = DateTime.now();
       final dive = Dive(
@@ -35,11 +40,13 @@ class DiveEditorCubit extends Cubit<DiveEditorState> {
         updatedAt: now,
         notes: notes,
       );
+
       if (_initialDive != null) {
         await _diveRepository.updateDive(dive);
       } else {
         await _diveRepository.addDive(dive);
       }
+
       emit(state.copyWith(status: DiveEditorStatus.saved));
     } catch (e) {
       emit(

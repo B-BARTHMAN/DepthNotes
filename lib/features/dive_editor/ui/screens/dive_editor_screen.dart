@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+/// Hosts the editor form and pops once the save lands.
+///
+/// When editing (initialDive != null), pops twice: once to leave the
+/// editor, once to leave the detail screen underneath.
 class DiveEditorScreen extends StatelessWidget {
   const DiveEditorScreen({this.initialDive, super.key});
 
@@ -15,7 +19,8 @@ class DiveEditorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<DiveEditorCubit, DiveEditorState>(
       listener: (context, state) {
-        if (state.status == DiveEditorStatus.saved) return;
+        if (state.status != DiveEditorStatus.saved) return;
+
         context.pop();
         if (initialDive != null) context.pop();
       },

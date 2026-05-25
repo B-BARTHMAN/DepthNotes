@@ -1,6 +1,7 @@
 import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:flutter/material.dart';
 
+/// Inputs for [DiveTime.rough]: a time-of-day bucket and a duration.
 class RoughTimeFields extends StatelessWidget {
   const RoughTimeFields({
     required this.timeOfDay,
@@ -21,10 +22,7 @@ class RoughTimeFields extends StatelessWidget {
           initialValue: timeOfDay,
           decoration: const InputDecoration(labelText: 'Time of day'),
           items: DiveTimeOfDay.values.map((e) {
-            return DropdownMenuItem(
-              value: e,
-              child: Text(e.name),
-            );
+            return DropdownMenuItem(value: e, child: Text(e.name));
           }).toList(),
           onChanged: (value) {
             if (value != null) onTimeOfDayChanged(value);

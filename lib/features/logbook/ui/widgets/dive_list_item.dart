@@ -3,6 +3,7 @@ import 'package:depth_notes/core/dive/models/dive.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// One row in the logbook. Tapping pushes the detail screen.
 class DiveListItem extends StatelessWidget {
   const DiveListItem({required this.dive, super.key});
 

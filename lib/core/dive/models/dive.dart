@@ -1,9 +1,11 @@
-
 import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'dive.freezed.dart';
 
+/// Single dive entry
+///
+/// [depth] is metric (meters)
 @freezed
 abstract class Dive with _$Dive {
   const factory Dive({
