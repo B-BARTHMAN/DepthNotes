@@ -1,5 +1,5 @@
 import 'package:depth_notes/core/dive/models/dive.dart';
-import 'package:depth_notes/core/dive/models/dive_time.dart';
+import 'package:depth_notes/core/dive_time/models/dive_time.dart';
 import 'package:depth_notes/features/dive_editor/cubit/dive_editor_cubit.dart';
 import 'package:depth_notes/features/dive_editor/ui/widgets/date_picker_tile.dart';
 import 'package:depth_notes/features/dive_editor/ui/widgets/dive_details_fields.dart';
@@ -40,7 +40,7 @@ class _DiveEditorFormState extends State<DiveEditorForm> {
     super.initState();
     final initial = widget.initialDive;
 
-    _siteController = TextEditingController(text: initial?.site ?? '');
+    _siteController = TextEditingController(text: initial?.siteName ?? '');
     _depthController = TextEditingController(
       text: initial?.depth.toString() ?? '',
     );

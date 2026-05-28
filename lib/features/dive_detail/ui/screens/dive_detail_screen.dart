@@ -47,7 +47,7 @@ class DiveDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(dive.site),
+        title: Text(dive.siteName),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),

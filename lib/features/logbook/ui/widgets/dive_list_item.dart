@@ -12,7 +12,7 @@ class DiveListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(dive.site),
+      title: Text(dive.siteName),
       subtitle: Text('${dive.depth}m · ${dive.time.duration}min'),
       trailing: Text('${dive.date.day}/${dive.date.month}/${dive.date.year}'),
       onTap: () => context.push(AppRoutes.diveDetailFor(dive.id), extra: dive),

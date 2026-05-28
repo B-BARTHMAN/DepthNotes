@@ -21,8 +21,8 @@ Architecture wired, app does nothing useful yet.
 
 Log a dive, see it again. No cloud.
 
-- `Dive` model: id, date, site (free text), depth, duration, notes
-- Drift schema for dives + pending mutations queue
+- `Dive` model: id, date, site, depth, time, number, notes
+- Drift schema for dives + satellites (no mutation queue — sync is timestamp-tracked later)
 - `LocalDiveService`, `DiveRepository` (local-only)
 - `DiveLogCubit` with load / add / delete
 - Logbook list, dive editor, dive detail screens
@@ -32,10 +32,10 @@ First version you actually use.
 
 ## M2 — Cloud sync
 
-- Supabase project, `dives` table, RLS
+- Supabase project, `dives` table + satellites, RLS
 - `SupabaseDiveService`
 - `AuthCubit` + email/password
-- Sync worker draining the mutation queue
+- Sync worker: push/pull rows changed since last sync (`updatedAt`); soft-delete tombstones drain the same way
 - Anonymous local logging still works; users can claim local dives by signing up
 - Connectivity awareness
 
@@ -51,7 +51,8 @@ First version you actually use.
 Replace free-text site with a real catalog. First slice of the encyclopedia.
 
 - `DiveSite` model, Drift table, Supabase table
-- Read-only for end users; seeded by developer
+- Curated catalog delivered as user-requested regional packs
+- Users can create sites locally (client UUID), flagged for curation
 - Search + pick a site when logging
 - Site detail screen
 - Map view
@@ -67,24 +68,39 @@ Replace free-text site with a real catalog. First slice of the encyclopedia.
 
 Encyclopedia gets real.
 
-- `Species` catalog (curated)
-- `SpeciesSighting` belongs to a dive
+- `Species` catalog (curated, downloadable packs)
+- `SpeciesSighting` belongs to a dive; `Abundance` is a rough/exact union
 - Logging a sighting when logging a dive
 - Species detail: where seen, when, by how many divers (anonymized)
 - "My aquarium" — species the user has personally seen
+
+## M7 — Social (directional)
+
+Reverses the original "not a social network" stance — see `DECISIONS.md` and `PROJECT.md`.
+
+- Friends / buddies linked to user accounts (`Buddy.linkedUserId`)
+- Standalone posts, optionally linked to one or many dives
+- Tagging people
+- Keeps privacy-first: opt-in, anonymous use still possible
+
+## Equipment & loadouts (slots into the editor as it grows)
+
+- `Equipment` typed union (exposure suit with thickness, plus generic gear)
+- `Loadout` — local quickfill bundling cylinders, equipment, buddies, weight
+- Selecting a loadout prefills the editor; the dive snapshots the values
 
 ## Beyond (unordered)
 
 - Cosmetic gamification (levels, badges, points)
 - Trash-collected and dive highlights
 - Trusted-contributor role
-- Species submission flow
+- Species / site submission and review flow
 - Conditions data (temp, visibility, current) per site per month
-- Photo feed at sites you follow
+- Per-dive gear-usage history (snapshot satellite)
 - Unit toggle (metric ↔ imperial)
 - Data export (JSON)
 - Account deletion
-- Dive computer import
+- Dive computer import (multi-channel sample stream; summary unions derive from it)
 - Web app
 - Research data partnerships
 

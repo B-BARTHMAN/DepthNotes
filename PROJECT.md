@@ -19,8 +19,8 @@ Queryable global geo/time data. Other apps log dives. Depth Notes turns a millio
 ## Principles
 
 1. **Privacy first.** Users own their data. Nothing leaves the device without opt-in. Anonymous use is always possible.
-2. **Offline first.** A diver on a boat with no signal must be able to log a dive.
-3. **Everything anchors to a dive.** No standalone posts, no decoupled photos. If you didn't log a dive, you didn't contribute.
+2. **Offline first.** A diver on a boat with no signal must be able to log a dive — and everything else, including posts, works offline and syncs later.
+3. **Dives are the core.** The logbook and encyclopedia are entirely dive-driven — photos, sightings, and conditions all anchor to a logged dive. Optional social features (buddies, posts) may stand alone, but they stay secondary; the dive is the unit that matters.
 4. **Start small, grow steadily.** Every feature ships end-to-end. Architecture stays clean as the app grows.
 
 ## Vision (directional)
@@ -29,12 +29,13 @@ Queryable global geo/time data. Other apps log dives. Depth Notes turns a millio
 - Trusted contributors curate the global catalog of sites and species.
 - World dive encyclopedia: site → temperature ranges, common species, visibility, recent conditions.
 - Curated, expandable species catalog. Users submit missing species for review.
+- An optional, lightweight social layer: dive buddies, friends, and posts.
 - Dive computer import (post-1.0).
 - Opt-in, anonymized environmental data shared with research institutions, only when the project is mature.
 
 ## What it's not
 
-- Not a social network. No standalone posts, follows-as-feed, or comment threads.
+- Not primarily a social network. Social is an optional, secondary layer, not a feed you're meant to live in.
 - Not a dive planner.
 - Not ad-supported.
 - Not a place where personal data is sold.

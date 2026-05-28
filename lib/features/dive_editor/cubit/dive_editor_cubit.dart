@@ -1,6 +1,6 @@
 import 'package:depth_notes/core/dive/models/dive.dart';
-import 'package:depth_notes/core/dive/models/dive_time.dart';
 import 'package:depth_notes/core/dive/repositories/dive_repository.dart';
+import 'package:depth_notes/core/dive_time/models/dive_time.dart';
 import 'package:depth_notes/features/dive_editor/cubit/dive_editor_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
@@ -33,8 +33,10 @@ class DiveEditorCubit extends Cubit<DiveEditorState> {
       final now = DateTime.now();
       final dive = Dive(
         id: _initialDive?.id ?? const Uuid().v7(),
+        number: 0,
         date: date,
-        site: site,
+        siteName: site,
+        siteId: 'NONE',
         depth: depth,
         time: time,
         updatedAt: now,

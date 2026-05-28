@@ -139,3 +139,85 @@ three-way merge base. Supersedes the `version` portion of the
 
 **Alternatives:** Keep it as future-proofing — costs a column on every
 model and a number to remember to increment.
+
+---
+
+## 2026-05-25 — IDs are UUID v7
+
+**Decision:** Client-generated IDs are UUID **v7**, matching the code (`Uuid().v7()`). R15 reworded from v4 to v7.
+
+**Why:** v7 is time-ordered, so it doubles as a natural insertion-order sort and indexes better than v4. Clarifies the 2026-05-04 / 2026-05-17 UUID entries.
+
+**Alternatives:** v4 (random, no ordering); ULID (same idea, extra dependency).
+
+---
+
+## 2026-05-25 — Change-tracked sync; drop the mutation queue
+
+**Decision:** No `PendingMutation` queue. The sync worker pushes local rows where `updatedAt > lastSync` and pulls remote rows the same way; conflicts resolve last-write-wins on `updatedAt`. R18 rewritten.
+
+**Why:** With `updatedAt` + `deletedAt` on every syncable row, a queue does no work a timestamp scan can't. Removes an entity and a whole class of queue-drain bugs.
+
+**Alternatives:** Op-log queue (precise ordering + per-op retries — neither needed for a logbook).
+
+---
+
+## 2026-05-25 — Soft delete via `deletedAt`
+
+**Decision:** Syncable entities carry `deletedAt`. Deleting sets it and bumps `updatedAt`. New rule R41.
+
+**Why:** Under last-write-wins, a hard delete leaves no trace, so another device's stale copy upserts the row back ("resurrection"). A tombstone makes the delete a normal newest-wins write that propagates everywhere.
+
+**Alternatives:** Hard delete (resurrection bug); a separate tombstones table (an extra table + join for no real gain over one nullable column).
+
+---
+
+## 2026-05-25 — Logbook entities snapshot facts; loadouts only prefill
+
+**Decision:** A dive copies its gear/gas/conditions in at log time. It never references a loadout (or any local-only record) by id. New rule R40; loadout drops off the `Dive` model.
+
+**Why:** A log must freeze what actually happened — editing or deleting a loadout must not rewrite past dives. And since loadouts are local-only while dives sync, a reference couldn't cross the boundary anyway.
+
+**Alternatives:** Live `loadoutId` on the dive (corrupts history on edit; breaks on a second device).
+
+---
+
+## 2026-05-25 — Equipment and loadouts are local-only
+
+**Decision:** `Equipment` and `Loadout` live only on the device; they don't sync. New rule R42. Synced data is dives + satellites, profile, and catalog.
+
+**Why:** They're entry-convenience config, not contributions. Keeping them off the wire is simpler and matches privacy-first. The dive already snapshots what it needs.
+
+**Alternatives:** Sync them as private user data (nice for multi-device; revisit when that's a real need).
+
+---
+
+## 2026-05-25 — User-created sites and downloadable packs
+
+**Decision:** The catalog (sites, species) ships as user-requested regional packs read offline. Users may create dive sites locally with a client UUID, flagged for curation. New rule R43; M4 "read-only for end users" dropped.
+
+**Why:** Offline-first means a diver at an uncatalogued site must still log it. Local creation + later curation fits the trusted-contributor vision.
+
+**Alternatives:** Strictly read-only catalog (can't log a new site offline); free-text site label only (no atlas geo for new places).
+
+---
+
+## 2026-05-25 — Variable-fidelity unions extended
+
+**Decision:** The `DiveTime` rough/precise pattern generalizes (R39): `Temperature` (rough/single/range), `Visibility` (rough/exact), `Abundance` (rough/exact), and `Equipment` (per-type variants — `exposureSuit` carries thickness, `generic` carries a category).
+
+**Why:** The same real quantity is entered at different fidelities (eyeballed bucket vs measured number). A union keeps each shape valid and lets coarse derive from fine; `Equipment` gets type-specific fields without a wall of nullables.
+
+**Alternatives:** Flat models with nullable type/fidelity-specific fields (allows contradictory states, validated only at runtime).
+
+---
+
+## 2026-05-25 — Optional social layer (buddies + standalone posts)
+
+**Decision:** Add an optional, secondary social layer — friends/buddies linked to accounts, and standalone posts that may link to zero-or-many dives. The product stays dive-first; social never becomes the point.
+
+**Why:** Light social without pivoting away from the logbook/encyclopedia. Posts are ordinary syncable entities (local-first, timestamp sync, soft delete), so offline works with no special handling. Hooks exist now (`Buddy.linkedUserId`, `Profile`); `Users` and `Post` land in the social milestone.
+
+**Note:** Updates `PROJECT.md` — principle 3 now reads "dives are the core… social is secondary," and "What it's not" softens from "no standalone posts" to "not primarily a social network."
+
+**Alternatives:** Dive-anchored-only social (posts must attach to a dive); no social at all (the original stance).

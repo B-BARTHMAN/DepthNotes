@@ -1,4 +1,4 @@
-import 'package:depth_notes/core/dive/models/dive_time.dart';
+import 'package:depth_notes/core/dive_time/models/dive_time.dart';
 import 'package:flutter/material.dart';
 
 /// Inputs for [DiveTime.precise]: timeIn / timeOut pickers.

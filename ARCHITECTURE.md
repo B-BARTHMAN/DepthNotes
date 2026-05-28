@@ -12,7 +12,7 @@ UI (View + Cubit)  →  Repository  →  Service
 
 - **View** — widgets and screens. Reads state from a Cubit, calls Cubit methods.
 - **Cubit** — feature state and the methods that change it. Depends on repositories.
-- **Repository** — plain class. Orchestrates services. Decides local vs remote, queues writes, merges results. The only thing Cubits talk to.
+- **Repository** — plain class. Orchestrates services. Decides local vs remote, merges results. The only thing Cubits talk to.
 - **Service** — plain class. Raw I/O against one source (Supabase, Drift, filesystem, Bluetooth). Doesn't know about other services.
 
 Only Cubits hold UI-observable state. Repositories and services are plain classes with methods.
@@ -69,19 +69,33 @@ Cubits expose intent-named methods (`loadDives()`, `addDive(...)`). No setters, 
 
 Freezed for models. JSON via `json_serializable`. One model per entity, used as both wire format and domain object. Split into a separate DTO only when Supabase ↔ UI shape actually diverges.
 
-Every persisted entity has `String id` (UUID v7) and `DateTime updatedAt`.
+Every persisted entity has `String id` (UUID v7) and `DateTime updatedAt`. Syncable entities also carry `DateTime? deletedAt`.
+
+Quantities that arrive at different fidelities depending on source are modeled as sealed unions, not as nullable-field soup: `DiveTime` (rough/precise), `Temperature` (rough/single/range), `Visibility` (rough/exact), `Abundance` (rough/exact), `Equipment` (per-type variants). Coarse values derive from fine.
+
+Logbook entities snapshot the facts of a dive at log time. They never live-reference mutable local templates (loadouts) or any local-only record by id — referencing would corrupt history on edit and can't cross the local↔sync boundary.
 
 ## Persistence
 
 Drift is the local DB and the source of truth for offline-first reads. Photos go on disk via `path_provider`; the path is a column. Bytes sync separately to Supabase Storage.
 
+Two data sets:
+- **Synced** — dives and their satellites (conditions, cylinders, sightings, photos, buddies), profile, and the catalog (sites, species).
+- **Local-only** — equipment, loadouts, sync cursors, and device settings (units, theme). Convenience config that doesn't leave the device.
+
 ## Sync
 
-Writes go local first and enqueue a pending mutation. A worker drains the queue when online. Conflicts: last-write-wins by server `updatedAt`. IDs are client-generated UUIDs.
+Writes go local first; never write to Supabase first. Sync is change-tracked by `updatedAt`: the worker pushes local rows changed since the last sync and pulls remote rows changed since the last sync. There is no mutation queue.
+
+Conflicts resolve last-write-wins on server `updatedAt`. IDs are client-generated UUIDs.
+
+Deletes on syncable entities are soft: set `deletedAt` and bump `updatedAt`, so a delete is just a newest-wins write that propagates like any edit. The UI hides tombstoned rows; tombstones are purged once they've propagated.
 
 ## Backend — Supabase
 
-Email/password auth for v1. Anonymous use is allowed except for cloud sync and social. RLS is the source of truth for access control; the client never filters by `user_id`. Env values come from `--dart-define-from-file=config/env/dev.json`. `prod.json` is gitignored.
+Email/password auth for v1. Anonymous use is allowed except for cloud sync and social. RLS is the source of truth for access control; the client never filters by `user_id`, and the owner is stamped server-side from `auth.uid()`. Env values come from `--dart-define-from-file=config/env/dev.json`. `prod.json` is gitignored.
+
+The catalog (sites, species) is delivered as user-requested regional packs (e.g. "download the Red Sea pack") and read offline. Sites are normally curated, but users may create sites locally with a client UUID, flagged for later curation — the catalog is not strictly read-only.
 
 ## Routing — go_router
 
@@ -100,6 +114,7 @@ Numeric measurements are stored in metric. Conversion happens in the View layer 
 ## Privacy
 
 - Personal data does not leave the device without opt-in.
+- Equipment and loadouts are local-only.
 - Encyclopedia contributions are anonymous by default.
 - Users can export all data and delete their account end-to-end.
 
@@ -111,7 +126,7 @@ Numeric measurements are stored in metric. Conversion happens in the View layer 
 
 ## Rules
 
-Cited by number in audits.
+Cited by number in audits. Numbers are stable; new rules append rather than renumber.
 
 ### Layering
 - **R1.** A View never imports from `data/`. Views talk to Cubits only.
@@ -134,20 +149,25 @@ Cited by number in audits.
 
 ### Models
 - **R14.** Models are Freezed unions or data classes with `json_serializable` for serialization.
-- **R15.** Every persisted entity has `String id` (UUID v4), `DateTime updatedAt`, and `int version`.
+- **R15.** Every persisted entity has `String id` (UUID v7) and `DateTime updatedAt`.
 - **R16.** One model per entity until a real Supabase ↔ UI divergence forces a DTO split.
+- **R39.** Variable-fidelity quantities are sealed unions, never nullable-field soup. Coarse values derive from fine.
+- **R40.** Logbook entities snapshot the facts of a dive. They never reference mutable local templates (loadouts) or local-only records by id.
 
 ### Persistence & sync
 - **R17.** Local DB is Drift. Offline-first features read from Drift first.
-- **R18.** Writes go local first and enqueue a pending mutation. Never write to Supabase first.
+- **R18.** Writes go local first; never write to Supabase first. Sync is change-tracked by `updatedAt` (push/pull rows changed since last sync). No mutation queue.
 - **R19.** Conflicts resolve by last-write-wins on server `updatedAt`.
-- **R20.** IDs are client-generated UUIDs. Never autoincrement.
+- **R20.** IDs are client-generated UUIDs (v7). Never autoincrement.
 - **R21.** Photos live on disk; the path is stored as a column. Bytes sync separately.
+- **R41.** Deletes on syncable entities are soft: set `deletedAt`, bump `updatedAt`. The UI hides tombstoned rows; tombstones purge after propagation.
+- **R42.** Equipment and loadouts are local-only convenience config and do not sync. Revisit only if multi-device demands it.
 
 ### Backend
 - **R22.** Auth is Supabase email/password. Anonymous use works for everything except cloud sync and social.
-- **R23.** RLS policies are the source of truth for access. The client never filters by `user_id`.
+- **R23.** RLS policies are the source of truth for access. The client never filters by `user_id`; the owner is stamped server-side from `auth.uid()`.
 - **R24.** Env values come from `--dart-define-from-file`. No keys in source. `prod.json` is gitignored.
+- **R43.** The catalog is delivered as user-requested regional packs. Users may create dive sites locally (client UUID), flagged for curation; the catalog is not strictly read-only.
 
 ### Routing
 - **R25.** `go_router` with a hand-written typed-routes file. No codegen. No string paths in widgets.
